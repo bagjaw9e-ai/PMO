@@ -1,0 +1,23 @@
+{
+  "name": "Lingkar — tinjauan tubuh 360°",
+  "short_name": "Lingkar",
+  "description": "Unggah foto sekeliling tubuh, lalu geser untuk meninjau seluruh badan dalam 360°.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#141210",
+  "theme_color": "#141210",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

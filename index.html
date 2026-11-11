@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#141210" />
+    <meta name="description" content="Tinjau seluruh tubuh dalam 360°. Unggah foto dari beberapa sisi, lalu geser untuk memutar." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Lingkar" />
+    <title>Lingkar — tinjauan tubuh 360°</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <link rel="preload" as="image" href="demo/f_01.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,560&family=Outfit:wght@380;520;640&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="studio.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>Lingkar</h1>
+        <div class="tabs" role="tablist" aria-label="Sumber tinjauan">
+          <button type="button" id="tab-demo" role="tab" aria-selected="true">Contoh</button>
+          <button type="button" id="tab-mine" role="tab" aria-selected="false">Foto saya</button>
+        </div>
+        <button type="button" id="help" class="icon-btn" aria-label="Cara pakai">?</button>
+      </header>
+      <button type="button" id="source" class="source">Contoh dari video putaran di repo</button>
+
+      <main
+        class="stage"
+        id="stage"
+        role="slider"
+        aria-label="Putaran tubuh"
+        aria-valuemin="0"
+        aria-valuemax="359"
+        aria-valuenow="0"
+        tabindex="0"
+      >
+        <div class="glow" aria-hidden="true"></div>
+        <img id="photo" alt="Depan, 0 derajat" draggable="false" decoding="async" src="demo/f_01.jpg" />
+        <div class="empty" id="empty" hidden>
+          <svg class="guide-figure" viewBox="0 0 120 200" aria-hidden="true">
+            <rect x="28" y="8" width="64" height="184" rx="18" fill="none" stroke="currentColor" stroke-dasharray="3 4" />
+            <circle cx="60" cy="42" r="12" fill="none" stroke="currentColor" stroke-width="2" />
+            <path d="M60 54 v46 M40 74 h40 M42 150 l18-50 18 50" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <circle cx="16" cy="100" r="3" />
+            <circle cx="104" cy="100" r="3" />
+            <circle cx="60" cy="16" r="3" />
+            <circle cx="60" cy="184" r="3" />
+          </svg>
+          <h2>Belum ada fotomu</h2>
+          <p>Ambil depan, samping, dan belakang. Geser layar untuk meninjau seluruh tubuh, seperti contoh.</p>
+          <button type="button" id="empty-add" class="primary">Tambah foto</button>
+        </div>
+        <div class="readout">
+          <strong id="degree">0°</strong>
+          <span id="angle-name">Depan</span>
+          <span id="coverage-label">Contoh 360°</span>
+        </div>
+        <p class="hint" id="hint">Geser ke samping untuk memutar</p>
+      </main>
+
+      <section class="dock" aria-label="Kontrol putaran">
+        <div class="ring-wrap">
+          <svg id="ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="50" class="ring-track" />
+            <g id="ring-ticks"></g>
+            <g id="ring-shots"></g>
+            <g id="needle">
+              <line x1="60" y1="6" x2="60" y2="16" />
+            </g>
+          </svg>
+          <button type="button" id="spin" aria-pressed="false" aria-label="Putar otomatis">
+            <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5.5v13l11-6.5z" />
+            </svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true" hidden>
+              <path d="M7 5h3.2v14H7zM13.8 5H17v14h-3.2z" />
+            </svg>
+          </button>
+        </div>
+        <div class="actions">
+          <button type="button" id="add-btn" class="primary">Pakai foto saya</button>
+          <button type="button" id="edit-btn" hidden>Ubah</button>
+          <button type="button" id="remove-btn" hidden>Hapus</button>
+          <button type="button" id="sessions-btn" hidden>Sesi</button>
+        </div>
+        <div class="strip" id="strip" role="listbox" aria-label="Sudut tersimpan"></div>
+      </section>
+    </div>
+
+    <dialog id="sheet">
+      <div class="handle" aria-hidden="true"></div>
+      <div class="sheet-body">
+        <section id="panel-add" hidden>
+          <h2>Tambah sudut</h2>
+          <p class="lead">Pilih sisi tubuh, lalu ambil foto. Putar badan ke kanan: depan, sisi kiri, punggung, sisi kanan.</p>
+          <div class="presets" id="presets">
+            <button type="button" data-angle="0">Depan</button>
+            <button type="button" data-angle="45">Depan kiri</button>
+            <button type="button" data-angle="90">Sisi kiri</button>
+            <button type="button" data-angle="135">Blkg kiri</button>
+            <button type="button" data-angle="180">Belakang</button>
+            <button type="button" data-angle="225">Blkg kanan</button>
+            <button type="button" data-angle="270">Sisi kanan</button>
+            <button type="button" data-angle="315">Depan kanan</button>
+          </div>
+          <ul class="tips">
+            <li>HP tegak, jarak kamera sama di setiap sisi.</li>
+            <li>Kepala sampai kaki masuk bingkai.</li>
+            <li>Beberapa foto sekaligus diurutkan mengikuti putaran.</li>
+            <li>Video sambil berputar dipotong menjadi 24 sudut.</li>
+          </ul>
+          <div class="row">
+            <button type="button" id="use-camera" class="primary">Kamera</button>
+            <button type="button" id="use-library">Galeri</button>
+          </div>
+          <button type="button" class="textish" data-close>Tutup</button>
+        </section>
+
+        <section id="panel-preview" hidden>
+          <h2 id="preview-title">Cek bingkai</h2>
+          <p class="lead" id="preview-lead">Seluruh tubuh sebaiknya terlihat, dari kepala sampai kaki.</p>
+          <div class="preview-frame">
+            <img id="preview-img" alt="Pratinjau foto yang akan disimpan" />
+            <div class="guides" aria-hidden="true">
+              <span>kepala</span>
+              <span>kaki</span>
+            </div>
+          </div>
+          <label class="slider">
+            <span id="preview-angle">0° · Depan</span>
+            <input id="preview-range" type="range" min="0" max="359" step="1" value="0" />
+          </label>
+          <div class="row">
+            <button type="button" id="preview-cancel">Batal</button>
+            <button type="button" id="preview-save" class="primary">Simpan sudut</button>
+          </div>
+        </section>
+
+        <section id="panel-sessions" hidden>
+          <h2>Sesi tinjauan</h2>
+          <p class="lead">Setiap sesi menyimpan rangkaian sudutnya sendiri, di HP ini.</p>
+          <label class="field">
+            Nama sesi
+            <input id="session-title" type="text" maxlength="40" autocomplete="off" />
+          </label>
+          <div class="session-list" id="session-list"></div>
+          <div class="row">
+            <button type="button" id="new-session" class="primary">Sesi baru</button>
+            <button type="button" id="delete-session">Hapus sesi</button>
+          </div>
+          <button type="button" class="textish" data-close>Tutup</button>
+        </section>
+
+        <section id="panel-help" hidden>
+          <h2>Cara meninjau 360°</h2>
+          <figure class="ref">
+            <img src="demo/still.jpg" width="140" height="248" alt="Foto referensi seluruh tubuh, tampak depan" />
+            <figcaption>Foto referensi di repo. Putaran contoh diambil dari videonya: depan, sisi kiri, belakang, sisi kanan, lalu kembali ke depan.</figcaption>
+          </figure>
+          <ol class="steps">
+            <li>Geser foto ke samping, atau tekan tombol di tengah lingkaran. Satu putaran contoh berlangsung sekitar 10 detik, sama seperti videonya.</li>
+            <li>Untuk tubuhmu, ambil beberapa sisi sambil berdiri di titik yang sama. Badan yang berputar, kamera jangan bergeser.</li>
+            <li>Isi delapan sisi supaya tinjauan utuh. Derajat di kiri atas mengikuti sisi yang sedang tampil.</li>
+            <li>Foto dan video tidak dikirim ke server. Semuanya tersimpan di HP ini. Kalau data situs dihapus, fotonya ikut hilang.</li>
+          </ol>
+          <button type="button" class="primary wide" data-close>Mengerti</button>
+        </section>
+
+        <section id="panel-busy" hidden>
+          <h2>Menyusun putaran</h2>
+          <p class="lead" id="busy-text">Membaca video…</p>
+          <div class="busy-track" aria-hidden="true"><span id="busy-bar"></span></div>
+        </section>
+      </div>
+    </dialog>
+
+    <input id="pick-camera" class="file" type="file" accept="image/*" capture="environment" />
+    <input id="pick-library" class="file" type="file" accept="image/*,video/*" multiple />
+    <div id="toast" role="status"></div>
+    <p id="live" class="sr" aria-live="polite"></p>
+    <noscript><p class="noscript">Lingkar butuh JavaScript untuk memutar foto.</p></noscript>
+    <script src="app.js"></script>
+  </body>
+</html>

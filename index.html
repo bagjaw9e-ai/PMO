@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Neon Stickman</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <div id="stage">
+        <canvas id="view" width="1080" height="1920"></canvas>
+      </div>
+      <div id="controls">
+        <button id="play" type="button" aria-label="Putar atau jeda">
+          <svg class="icon-play" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M8 5v14l12-7z" fill="currentColor" />
+          </svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor" />
+          </svg>
+        </button>
+        <input id="seek" type="range" min="0" max="10000" value="0" step="1" aria-label="Progres" />
+        <button id="full" type="button" aria-label="Layar penuh">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </main>
+    <audio id="voice" src="assets/audio.mp3" preload="auto"></audio>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>

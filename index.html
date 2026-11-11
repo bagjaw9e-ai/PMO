@@ -8,60 +8,65 @@
 <style>
   :root{
     --bg:#0f0f12; --panel:#1a1a20; --line:#2a2a33; --text:#f2f2f5; --muted:#9a9aa8;
-    --accent:#e8a3a3; --accent-ink:#2a1414;
+    --accent:#e8a3a3; --accent-ink:#2a1414; color-scheme:dark;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
     font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-  body{display:flex;flex-direction:column;min-height:100dvh}
-  header{padding:calc(10px + env(safe-area-inset-top)) 16px 8px;display:flex;align-items:center;gap:10px}
+  body{display:flex;flex-direction:column;
+    padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+  header{padding:calc(10px + env(safe-area-inset-top,0px)) 16px 8px;display:flex;align-items:center;gap:10px}
   header h1{font-size:17px;margin:0;font-weight:650;flex:1}
   .chip{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:3px 9px}
 
-  #stage{position:relative;flex:1;min-height:0;margin:0 12px;border-radius:18px;overflow:hidden;
+  #stage{position:relative;flex:1;min-height:260px;margin:0 16px;border-radius:18px;overflow:hidden;
     background:radial-gradient(ellipse at 50% 40%,#22222a,#111115);touch-action:none;user-select:none}
   #view{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
   #view:active{cursor:grabbing}
   #overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:12px;background:rgba(15,15,18,.85);text-align:center;padding:24px;font-size:14px}
+    gap:12px;background:rgba(15,15,18,.88);text-align:center;padding:24px;font-size:14px}
   #overlay[hidden]{display:none}
   .bar{width:70%;max-width:260px;height:6px;border-radius:9px;background:var(--line);overflow:hidden}
   .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .1s}
   #hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:12px;color:#fff;
     background:rgba(0,0,0,.45);padding:5px 11px;border-radius:99px;pointer-events:none;transition:opacity .4s;white-space:nowrap}
-
-  /* angle dial */
   #dial{position:absolute;top:12px;right:12px;width:58px;height:58px}
   #dial text{font:600 12px system-ui;fill:#fff}
-  #compare{position:absolute;top:12px;left:12px;width:22%;max-width:110px;border-radius:10px;
-    border:2px solid rgba(255,255,255,.7);box-shadow:0 4px 14px rgba(0,0,0,.4);display:none}
-  #compare.on{display:block}
 
-  .controls{padding:12px 16px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
-  input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+  .controls{padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+  input[type=range]{width:100%;accent-color:var(--accent);height:28px;margin:0}
   .row{display:flex;gap:8px}
   .row > *{flex:1}
   button,.btn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--text);
     border-radius:12px;padding:12px 8px;font:inherit;font-size:14px;text-align:center;cursor:pointer;min-height:46px}
   button.primary,.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:650}
   button[aria-pressed=true]{background:#2c2c36;border-color:var(--accent)}
+  button:focus-visible,.btn:focus-within,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .btn input{display:none}
   details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
   summary{cursor:pointer;font-weight:600}
   details p{color:var(--muted);font-size:13px;margin:8px 0}
-  .views{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-  .views button{padding:8px 4px;min-height:38px;font-size:13px}
+
+  /* photo strip */
+  #strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+  #strip:empty{display:none}
+  .th{position:relative;flex:0 0 64px;border-radius:10px;overflow:hidden;border:2px solid var(--line);background:var(--panel)}
+  .th.on{border-color:var(--accent)}
+  .th img{display:block;width:100%;height:96px;object-fit:cover;cursor:pointer}
+  .th .lbl{position:absolute;left:0;right:0;top:0;font-size:11px;font-weight:650;text-align:center;
+    background:rgba(0,0,0,.55);color:#fff;padding:1px 0}
+  .th .ops{display:flex}
+  .th .ops button{flex:1;min-height:28px;padding:2px 0;border:0;border-radius:0;font-size:13px;background:transparent}
 </style>
 </head>
 <body>
 <header>
   <h1>Viewer 360°</h1>
-  <span class="chip" id="srcLabel">Demo</span>
+  <span class="chip" id="srcLabel">Contoh</span>
 </header>
 
 <div id="stage">
   <canvas id="view"></canvas>
-  <img id="compare" alt="Foto yang diupload">
   <svg id="dial" viewBox="0 0 58 58" aria-hidden="true">
     <circle cx="29" cy="29" r="25" fill="rgba(0,0,0,.45)" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
     <line id="needle" x1="29" y1="13" x2="29" y2="6" stroke="#e8a3a3" stroke-width="3" stroke-linecap="round"/>
@@ -73,54 +78,51 @@
 
 <div class="controls">
   <input type="range" id="scrub" min="0" max="359" value="0" aria-label="Sudut">
-  <div class="views">
-    <button data-deg="0">Depan</button>
-    <button data-deg="90">Samping</button>
-    <button data-deg="180">Belakang</button>
-    <button data-deg="270">Samping</button>
-  </div>
+  <div id="strip" aria-label="Urutan foto"></div>
   <div class="row">
     <button id="play" aria-pressed="false">▶ Putar otomatis</button>
-    <button id="cmpBtn" aria-pressed="false">Bandingkan foto</button>
+    <label class="btn primary">📷 Upload foto<input type="file" id="photoIn" accept="image/*" multiple></label>
   </div>
   <div class="row">
-    <label class="btn primary">📷 Upload foto<input type="file" id="photoIn" accept="image/*"></label>
-    <label class="btn">🎞 Video putar<input type="file" id="videoIn" accept="video/*"></label>
+    <label class="btn">➕ Tambah foto<input type="file" id="addIn" accept="image/*" multiple></label>
+    <label class="btn">🎞 Pakai video<input type="file" id="videoIn" accept="video/*"></label>
   </div>
   <details>
-    <summary>Cara kerja</summary>
-    <p><b>Upload foto</b>: foto Anda dipakai sebagai sudut 0° (depan). Sudut lainnya diambil dari video referensi
-      yang memutar orang yang sama, lalu diselaraskan ukuran dan posisinya dengan foto Anda.</p>
-    <p><b>Video putar</b>: rekam orang/benda berputar satu kali (atau kamera mengelilinginya), lalu upload.
-      Aplikasi mengambil frame-nya dan otomatis mendeteksi titik satu putaran penuh.</p>
-    <p>Satu foto saja tidak memuat informasi sisi samping/belakang, jadi sudut lain selalu berasal dari video.</p>
+    <summary>Cara memotret</summary>
+    <p>Ambil 4–12 foto orang yang sama sambil berputar di tempat (atau Anda yang berjalan mengelilinginya):
+      depan, serong, samping, belakang, dan seterusnya sampai kembali ke depan. Jarak dan tinggi kamera usahakan tetap.</p>
+    <p>Pilih semua foto sekaligus. Urutannya mengikuti nama file; kalau ada yang salah urutan, pakai tombol ◀ ▶ di bawah foto.
+      Foto pertama dianggap tampak depan (0°), sisanya dibagi rata sampai 360°.</p>
+    <p>Semua foto ditampilkan dengan bingkai yang sama, lalu perpindahan antar-foto dibuat halus.
+      Semua yang tampil adalah foto asli Anda; tidak ada sudut yang dibuat-buat. Makin banyak foto, makin halus putarannya.</p>
   </details>
 </div>
 
 <script>
 (() => {
-  const DEMO_VIDEO = 'grok_video_2026-11-11-06-48-25.mp4';
-  const DEMO_PHOTO = 'assets/foto-depan.jpg';
-  const N_FRAMES = 72;            // frames sampled from the video (5° per frame)
-  const MAX_W = 480;               // frame cache width (keeps memory low on phones)
+  const SAMPLE = ['01','02','03','04','05','06','07','08'].map(n => 'assets/contoh/' + n + '.jpg');
+  const OUT_H = 960;        // height of normalised photo frames
+  const VIDEO_FRAMES = 72;  // frames sampled from a video (5° each)
+  const VIDEO_W = 480;
 
   const $ = id => document.getElementById(id);
   const canvas = $('view'), ctx = canvas.getContext('2d');
   const overlay = $('overlay'), ovText = $('ovText'), ovBar = $('ovBar');
-  const scrub = $('scrub'), playBtn = $('play'), cmpBtn = $('cmpBtn'), compareImg = $('compare');
+  const scrub = $('scrub'), playBtn = $('play'), strip = $('strip');
 
-  let frames = [];        // array of canvases, one rotation
-  let frontOverride = null; // canvas used as 0° frame (uploaded photo)
-  let angle = 0;          // 0..360
-  let zoom = 1, panX = 0, panY = 0;
+  let photos = [];   // [{src, img}] in rotation order (photo mode)
+  let frames = [];   // normalised canvases, evenly spread over 360°
+  let blend = true;  // crossfade between neighbours (photo mode)
+  let mode = 'Contoh';
+  let angle = 0, zoom = 1, panY = 0;
   let playing = false, lastT = 0;
 
-  /* ---------- helpers ---------- */
-  function showOverlay(text, p){ overlay.hidden = false; ovText.textContent = text; ovBar.style.width = ((p||0)*100)+'%'; }
-  function hideOverlay(){ overlay.hidden = true; }
+  const showOverlay = (t, p) => { overlay.hidden = false; ovText.textContent = t; ovBar.style.width = ((p || 0) * 100) + '%'; };
+  const hideOverlay = () => { overlay.hidden = true; };
+  const loadImage = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
   const wait = (el, ev) => new Promise((res, rej) => {
-    const ok = () => { cleanup(); res(); }, bad = () => { cleanup(); rej(new Error('media error')); };
-    const cleanup = () => { el.removeEventListener(ev, ok); el.removeEventListener('error', bad); };
+    const ok = () => { off(); res(); }, bad = () => { off(); rej(new Error('media')); };
+    const off = () => { el.removeEventListener(ev, ok); el.removeEventListener('error', bad); };
     el.addEventListener(ev, ok, {once:true}); el.addEventListener('error', bad, {once:true});
   });
 
@@ -130,36 +132,105 @@
     draw();
   }
 
-  /* ---------- frame extraction ---------- */
+  /* ---------- frame normalisation ---------- */
+  // Put every photo on a frame of the same size (taken from the first photo), centred.
+  // Photos taken from the same distance then line up on their own.
+  function normalise(list){
+    const first = list[0];
+    const fw = first.naturalWidth || first.width, fh = first.naturalHeight || first.height;
+    const outW = Math.round(OUT_H * fw / fh);
+    return list.map(img => {
+      const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+      const out = document.createElement('canvas'); out.width = outW; out.height = OUT_H;
+      const o = out.getContext('2d');
+      o.fillStyle = '#16161b'; o.fillRect(0, 0, outW, OUT_H);
+      const s = Math.min(outW / w, OUT_H / h);
+      o.imageSmoothingQuality = 'high';
+      o.drawImage(img, (outW - w * s) / 2, (OUT_H - h * s) / 2, w * s, h * s);
+      return out;
+    });
+  }
+
+  /* ---------- photo mode ---------- */
+  async function setPhotos(list, label){
+    stopPlay();
+    photos = list; mode = label; blend = true;
+    if (!photos.length){ frames = []; renderStrip(); $('srcLabel').textContent = 'Kosong'; draw(); showOverlay('Upload 4–12 foto dari berbagai sisi untuk mulai.', 0); return; }
+    showOverlay('Menyelaraskan ' + photos.length + ' foto…', 0.5);
+    await new Promise(r => setTimeout(r, 30)); // let the overlay paint
+    frames = normalise(photos.map(p => p.img));
+    $('srcLabel').textContent = label + ' · ' + photos.length + ' foto';
+    renderStrip(); hideOverlay(); setAngle(0);
+    if (photos.length < 4){
+      showOverlay('Baru ' + photos.length + ' foto. Tambah foto samping & belakang (minimal 4) agar bisa diputar penuh.', 1);
+      setTimeout(hideOverlay, 2600);
+    }
+  }
+
+  async function filesToPhotos(fileList){
+    const files = [...fileList].filter(f => f.type.startsWith('image/'))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric:true}));
+    const out = [];
+    for (const [i, f] of files.entries()){
+      showOverlay('Membaca foto ' + (i + 1) + '/' + files.length, (i + 1) / files.length);
+      const src = URL.createObjectURL(f);
+      try { out.push({ src, img: await loadImage(src) }); } catch (_) {}
+    }
+    return out;
+  }
+
+  function renderStrip(){
+    strip.innerHTML = '';
+    if (!blend) return;
+    const n = photos.length;
+    photos.forEach((p, i) => {
+      const el = document.createElement('div'); el.className = 'th'; el.dataset.i = i;
+      el.innerHTML = `<span class="lbl">${Math.round(i * 360 / n)}°</span><img alt="Foto ${i+1}">
+        <div class="ops"><button data-op="l" aria-label="Geser ke kiri">◀</button><button data-op="x" aria-label="Hapus">✕</button><button data-op="r" aria-label="Geser ke kanan">▶</button></div>`;
+      const im = el.querySelector('img'); im.src = p.src;
+      im.addEventListener('click', () => { stopPlay(); setAngle(i * 360 / n); });
+      strip.appendChild(el);
+    });
+    markStrip();
+  }
+  function markStrip(){
+    if (!blend || !photos.length) return;
+    const n = photos.length, cur = Math.round(angle / 360 * n) % n;
+    strip.querySelectorAll('.th').forEach(el => el.classList.toggle('on', +el.dataset.i === cur));
+  }
+  strip.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const i = +b.closest('.th').dataset.i, list = photos.slice();
+    if (b.dataset.op === 'x') list.splice(i, 1);
+    if (b.dataset.op === 'l' && i > 0) [list[i-1], list[i]] = [list[i], list[i-1]];
+    if (b.dataset.op === 'r' && i < list.length - 1) [list[i+1], list[i]] = [list[i], list[i+1]];
+    setPhotos(list, mode);
+  });
+
+  /* ---------- video mode (optional) ---------- */
+  // Frames are grabbed while the video plays: seeking is unreliable on many phones.
   async function extractFrames(src){
-    // Frames are grabbed while the video plays (seeking is unreliable on many
-    // mobile browsers: it often keeps returning the first frame).
     const v = document.createElement('video');
     v.muted = true; v.playsInline = true; v.preload = 'auto';
     v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
     v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
-    document.body.appendChild(v);
-    v.src = src;
+    document.body.appendChild(v); v.src = src;
     try {
       await wait(v, 'loadeddata');
-      const dur = v.duration, w = Math.min(MAX_W, v.videoWidth), h = Math.round(v.videoHeight * w / v.videoWidth);
-      const out = [];
-      let next = 0; // index of the next target time
+      const dur = v.duration, w = Math.min(VIDEO_W, v.videoWidth), h = Math.round(v.videoHeight * w / v.videoWidth);
+      const out = []; let next = 0;
       const grab = t => {
-        while (next < N_FRAMES && t >= (next / N_FRAMES) * dur - 0.02){
+        while (next < VIDEO_FRAMES && t >= (next / VIDEO_FRAMES) * dur - 0.02){
           const c = document.createElement('canvas'); c.width = w; c.height = h;
-          c.getContext('2d').drawImage(v, 0, 0, w, h);
-          // if playback skipped several targets, reuse this frame for them
-          out.push(c); next++;
+          c.getContext('2d').drawImage(v, 0, 0, w, h); out.push(c); next++;
         }
         showOverlay('Mengambil frame video… ' + Math.round(t / dur * 100) + '%', t / dur);
       };
       v.playbackRate = 2;
       await new Promise((resolve, reject) => {
-        const finish = () => { resolve(); };
-        v.addEventListener('ended', finish, {once:true});
+        v.addEventListener('ended', resolve, {once:true});
         if (v.requestVideoFrameCallback){
-          const cb = (_, meta) => { grab(meta.mediaTime); if (!v.ended) v.requestVideoFrameCallback(cb); };
+          const cb = (_, m) => { grab(m.mediaTime); if (!v.ended) v.requestVideoFrameCallback(cb); };
           v.requestVideoFrameCallback(cb);
         } else {
           const tick = () => { grab(v.currentTime); if (!v.ended) requestAnimationFrame(tick); };
@@ -168,103 +239,36 @@
         v.play().catch(reject);
       });
       if (out.length < 8) throw new Error('too few frames');
-      return trimToOneRotation(out);
-    } finally {
-      v.pause(); v.removeAttribute('src'); v.load(); v.remove();
-    }
-  }
-
-  // tiny grayscale thumbnail for comparison
-  function sig(c){
-    const s = document.createElement('canvas'); s.width = 24; s.height = 40;
-    const x = s.getContext('2d'); x.drawImage(c, 0, 0, 24, 40);
-    const d = x.getImageData(0, 0, 24, 40).data, g = new Float32Array(960);
-    for (let i = 0; i < 960; i++) g[i] = d[i*4]*.3 + d[i*4+1]*.59 + d[i*4+2]*.11;
-    return g;
-  }
-  const diff = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i]-b[i]); return s / a.length; };
-
-  // Find where the subject returns to the starting pose; keep exactly one turn.
-  function trimToOneRotation(list){
-    const sigs = list.map(sig), first = sigs[0];
-    const start = Math.floor(list.length * 0.55);
-    let best = list.length, bestD = Infinity;
-    for (let i = start; i < list.length; i++){
-      const d = diff(first, sigs[i]);
-      if (d < bestD){ bestD = d; best = i; }
-    }
-    // only trim if the match is clearly closer than the mid-rotation frames
-    const mid = diff(first, sigs[Math.floor(list.length/2)]);
-    return bestD < mid * 0.6 ? list.slice(0, best) : list;
-  }
-
-  /* ---------- align uploaded photo to the 0° frame ---------- */
-  function bbox(c){
-    // subject bounding box via difference from the edge background colour
-    const W = 90, H = Math.round(c.height * 90 / c.width);
-    const s = document.createElement('canvas'); s.width = W; s.height = H;
-    const x = s.getContext('2d'); x.drawImage(c, 0, 0, W, H);
-    const d = x.getImageData(0, 0, W, H).data;
-    const col = (i) => [d[i], d[i+1], d[i+2]];
-    // average colour of left & right borders
-    let bg = [0,0,0], n = 0;
-    for (let y = 0; y < H; y++) for (const xx of [0,1,W-2,W-1]){ const p = col((y*W+xx)*4); bg[0]+=p[0];bg[1]+=p[1];bg[2]+=p[2]; n++; }
-    bg = bg.map(v => v/n);
-    const colHits = new Array(W).fill(0), rowHits = new Array(H).fill(0);
-    for (let y = 0; y < H; y++) for (let xx = 0; xx < W; xx++){
-      const p = col((y*W+xx)*4);
-      if (Math.abs(p[0]-bg[0]) + Math.abs(p[1]-bg[1]) + Math.abs(p[2]-bg[2]) > 70){ colHits[xx]++; rowHits[y]++; }
-    }
-    const span = (arr, thr) => { let a = 0, b = arr.length - 1; while (a < b && arr[a] < thr) a++; while (b > a && arr[b] < thr) b--; return [a, b]; };
-    const [x0, x1] = span(colHits, H * 0.25), [y0, y1] = span(rowHits, W * 0.15);
-    const k = c.width / W;
-    return { cx: (x0 + x1) / 2 * k, w: (x1 - x0) * k, top: y0 * k, h: (y1 - y0) * k };
-  }
-
-  function photoAsFrame(img){
-    const ref = frames[0];
-    const W = ref.width, H = ref.height;
-    const src = document.createElement('canvas');
-    src.width = img.naturalWidth; src.height = img.naturalHeight;
-    src.getContext('2d').drawImage(img, 0, 0);
-    // scale so subject width matches, anchored on horizontal centre and top of subject
-    const a = bbox(ref), b = bbox(src);
-    let s = a.w / b.w;
-    if (!isFinite(s) || s <= 0 || s > 5) s = W / src.width; // fallback: fit width
-    const out = document.createElement('canvas'); out.width = W; out.height = H;
-    const o = out.getContext('2d');
-    o.drawImage(ref, 0, 0);                    // background fill from the video frame
-    o.drawImage(src, a.cx - b.cx * s, a.top - b.top * s, src.width * s, src.height * s);
-    return out;
+      return out;
+    } finally { v.pause(); v.removeAttribute('src'); v.load(); v.remove(); }
   }
 
   /* ---------- rendering ---------- */
-  function frameFor(deg){
-    if (!frames.length) return null;
-    const n = frames.length;
-    const i = Math.round(((deg % 360) + 360) % 360 / 360 * n) % n;
-    if (frontOverride){
-      // blend the uploaded photo in around 0° (±6°) so it's the true front view
-      const d = Math.min(deg % 360, 360 - (deg % 360));
-      if (d < 6) return frontOverride;
-    }
-    return frames[i];
-  }
-
   function draw(){
     ctx.fillStyle = '#141418'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const f = frameFor(angle); if (!f) return;
-    const s = Math.min(canvas.width / f.width, canvas.height / f.height) * zoom;
-    const w = f.width * s, h = f.height * s;
-    const d = Math.min(devicePixelRatio || 1, 2);
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(f, (canvas.width - w) / 2 + panX * d, (canvas.height - h) / 2 + panY * d, w, h);
-    const a = Math.round(((angle % 360) + 360) % 360);
+    if (frames.length){
+      const n = frames.length, pos = ((angle % 360) + 360) % 360 / 360 * n;
+      const d = Math.min(devicePixelRatio || 1, 2);
+      const put = (f, alpha) => {
+        const s = Math.min(canvas.width / f.width, canvas.height / f.height) * zoom;
+        const w = f.width * s, h = f.height * s;
+        ctx.globalAlpha = alpha; ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(f, (canvas.width - w) / 2, (canvas.height - h) / 2 + panY * d, w, h);
+        ctx.globalAlpha = 1;
+      };
+      if (blend && n > 1){
+        const i = Math.floor(pos) % n, j = (i + 1) % n;
+        // hold each real photo for a moment, then fade smoothly to the next
+        let t = pos - Math.floor(pos); t = Math.min(1, Math.max(0, (t - 0.2) / 0.6)); t = t * t * (3 - 2 * t);
+        put(frames[i], 1); if (t > 0) put(frames[j], t);
+      } else put(frames[Math.round(pos) % n], 1);
+    }
+    const a = Math.round(((angle % 360) + 360) % 360) % 360;
     $('deg').textContent = a + '°';
     $('needle').setAttribute('transform', `rotate(${a} 29 29)`);
     scrub.value = a;
+    markStrip();
   }
-
   function setAngle(a){ angle = ((a % 360) + 360) % 360; draw(); }
 
   /* ---------- interaction ---------- */
@@ -273,94 +277,73 @@
   canvas.addEventListener('pointerdown', e => {
     canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
-    dragX = e.clientX; dragY = e.clientY;
-    stopPlay(); $('hint').style.opacity = 0;
+    dragX = e.clientX; dragY = e.clientY; stopPlay(); $('hint').style.opacity = 0;
   });
   canvas.addEventListener('pointermove', e => {
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if (pointers.size === 2){
-      const [p, q] = [...pointers.values()];
-      const dist = Math.hypot(p.x - q.x, p.y - q.y);
+      const [p, q] = [...pointers.values()], dist = Math.hypot(p.x - q.x, p.y - q.y);
       if (lastPinch) zoom = Math.max(1, Math.min(4, zoom * dist / lastPinch));
-      lastPinch = dist; if (zoom === 1){ panX = panY = 0; } draw(); return;
+      lastPinch = dist; if (zoom === 1) panY = 0; draw(); return;
     }
     const dx = e.clientX - dragX, dy = e.clientY - dragY;
     dragX = e.clientX; dragY = e.clientY;
-    if (zoom > 1.05 && Math.abs(dy) > Math.abs(dx)) { panY += dy; draw(); return; }
-    // full canvas width drag = 360°
-    setAngle(angle - dx / canvas.getBoundingClientRect().width * 360);
+    if (zoom > 1.05 && Math.abs(dy) > Math.abs(dx)){ panY += dy; draw(); return; }
+    setAngle(angle - dx / canvas.getBoundingClientRect().width * 360); // full width = 360°
   });
   const up = e => { pointers.delete(e.pointerId); if (pointers.size < 2) lastPinch = 0; };
   canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
-  canvas.addEventListener('wheel', e => { e.preventDefault(); zoom = Math.max(1, Math.min(4, zoom * (e.deltaY < 0 ? 1.1 : 0.9))); if (zoom===1) panX=panY=0; draw(); }, {passive:false});
-  canvas.addEventListener('dblclick', () => { zoom = 1; panX = panY = 0; draw(); });
-
+  canvas.addEventListener('wheel', e => { e.preventDefault(); zoom = Math.max(1, Math.min(4, zoom * (e.deltaY < 0 ? 1.1 : 0.9))); if (zoom === 1) panY = 0; draw(); }, {passive:false});
+  canvas.addEventListener('dblclick', () => { zoom = 1; panY = 0; draw(); });
   scrub.addEventListener('input', () => { stopPlay(); setAngle(+scrub.value); });
-  document.querySelectorAll('.views button').forEach(b => b.addEventListener('click', () => { stopPlay(); setAngle(+b.dataset.deg); }));
 
   function loop(t){
     if (!playing) return;
     const dt = lastT ? (t - lastT) / 1000 : 0; lastT = t;
-    setAngle(angle + dt * 45); // 8 s per revolution
+    setAngle(angle + dt * 36); // 10 s per revolution
     requestAnimationFrame(loop);
   }
-  function startPlay(){ playing = true; lastT = 0; playBtn.setAttribute('aria-pressed','true'); playBtn.textContent = '⏸ Jeda'; requestAnimationFrame(loop); }
+  function startPlay(){ if (!frames.length) return; playing = true; lastT = 0; playBtn.setAttribute('aria-pressed','true'); playBtn.textContent = '⏸ Jeda'; requestAnimationFrame(loop); }
   function stopPlay(){ playing = false; playBtn.setAttribute('aria-pressed','false'); playBtn.textContent = '▶ Putar otomatis'; }
   playBtn.addEventListener('click', () => playing ? stopPlay() : startPlay());
 
-  cmpBtn.addEventListener('click', () => {
-    const on = !compareImg.classList.contains('on');
-    compareImg.classList.toggle('on', on); cmpBtn.setAttribute('aria-pressed', on);
-  });
-
-  /* ---------- loading ---------- */
-  function loadImage(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
-
-  async function usePhoto(src, label){
-    const img = await loadImage(src);
-    frontOverride = photoAsFrame(img);
-    compareImg.src = src;
-    $('srcLabel').textContent = label;
-    setAngle(0);
-  }
-
-  async function loadVideo(src, label){
-    stopPlay();
-    try{
-      showOverlay('Memuat video…', 0);
-      frames = await extractFrames(src);
-      frontOverride = null;
-      $('srcLabel').textContent = label;
-      hideOverlay(); setAngle(0);
-      return true;
-    }catch(err){
-      showOverlay('Video tidak bisa dibaca. Coba format MP4 (H.264), atau buka halaman lewat server (bukan file://).', 0);
-      return false;
-    }
-  }
-
+  /* ---------- inputs ---------- */
   $('photoIn').addEventListener('change', async e => {
-    const f = e.target.files[0]; if (!f) return;
-    if (!frames.length){ showOverlay('Upload video putar dulu — foto saja tidak punya sisi samping/belakang.', 0); return; }
-    showOverlay('Menyelaraskan foto…', 1);
-    await usePhoto(URL.createObjectURL(f), 'Foto Anda');
-    hideOverlay(); startPlay();
+    if (!e.target.files.length) return;
+    const list = await filesToPhotos(e.target.files);
     e.target.value = '';
+    if (!list.length){ showOverlay('Foto tidak bisa dibaca. Coba format JPG atau PNG.', 0); return; }
+    await setPhotos(list, 'Foto Anda'); if (list.length > 1) startPlay();
+  });
+  $('addIn').addEventListener('change', async e => {
+    if (!e.target.files.length) return;
+    const more = await filesToPhotos(e.target.files);
+    e.target.value = '';
+    const base = blend && mode === 'Foto Anda' ? photos : [];
+    await setPhotos(base.concat(more), 'Foto Anda');
   });
   $('videoIn').addEventListener('change', async e => {
     const f = e.target.files[0]; if (!f) return;
-    if (await loadVideo(URL.createObjectURL(f), 'Video Anda')) startPlay();
-    e.target.value = '';
+    e.target.value = ''; stopPlay();
+    try {
+      showOverlay('Memuat video…', 0);
+      frames = await extractFrames(URL.createObjectURL(f));
+      blend = false; photos = []; mode = 'Video Anda'; renderStrip();
+      $('srcLabel').textContent = 'Video Anda';
+      hideOverlay(); setAngle(0); startPlay();
+    } catch (_) { showOverlay('Video tidak bisa dibaca. Coba format MP4 (H.264).', 0); }
   });
 
   window.addEventListener('resize', resize);
   resize();
   (async () => {
-    if (await loadVideo(DEMO_VIDEO, 'Demo')){
-      try { await usePhoto(DEMO_PHOTO, 'Demo + foto'); } catch(_){}
+    try {
+      showOverlay('Memuat foto contoh…', 0.3);
+      const imgs = await Promise.all(SAMPLE.map(loadImage));
+      await setPhotos(imgs.map((img, i) => ({ src: SAMPLE[i], img })), 'Contoh');
       startPlay();
-    }
+    } catch (_) { showOverlay('Upload 4–12 foto dari berbagai sisi untuk mulai.', 0); }
   })();
 })();
 </script>
